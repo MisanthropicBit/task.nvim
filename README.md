@@ -22,11 +22,11 @@ A demonstration of how an event loop ([`libuv`](https://libuv.org/) in neovim)
 and [lua coroutines](https://www.lua.org/pil/9.1.html) can be used to build an
 async/await-free
 ([colorless](https://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/))
-concurrent task library for neovim.
+concurrent task library.
 
 ## Example usage
 
-### Wait for a sleeping task
+### Wait for a task
 
 ```lua
 local task = Task.run(function()
@@ -53,8 +53,7 @@ local tasks = vim.tbl_map(function(time)
     end)
 end)
 
--- Limit to two concurrent tasks at a time and cancel remaining tasks if timeout
--- is exceeded
+-- Limit to two concurrent tasks at a time and cancel remaining tasks if timeout is exceeded
 task:wait_all(tasks, { concurrency = 2, timeout = 3000 })
 ```
 
