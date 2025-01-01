@@ -1,7 +1,7 @@
 <div align="center">
   <br />
   <h1>task.nvim</h1>
-  <p><i>Using an event loop and corountines to build an async/await-free
+  <p><i>Using an event loop and coroutines to build an async/await-free
   concurrent task library</i></p>
   <p>
     <img src="https://img.shields.io/badge/version-0.1.0-blue?style=for-the-badge" />
