@@ -18,11 +18,21 @@
   <br />
 </div>
 
-A demonstration of how an event loop ([`libuv`](https://libuv.org/) in neovim)
-and [lua coroutines](https://www.lua.org/pil/9.1.html) can be used to build an
-async/await-free
+A demonstration of how an event loop[^event_loop] ([`libuv`](https://libuv.org/)
+in neovim) and [lua coroutines](https://www.lua.org/pil/9.1.html) can be used to
+build an async/await-free
 ([colorless](https://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/))
 concurrent task library.
+
+- [Requirements](#)
+- [Example usage](#example-usage)
+- [How does it work?](#how-does-it-work)
+- [Contributing](#contributing)
+- [References](#references)
+
+## Requirements
+
+* TODO
 
 ## Example usage
 
@@ -59,41 +69,48 @@ task:wait_all(tasks, { concurrency = 2, timeout = 3000 })
 
 ## How does it work?
 
-We need two components for the task library. Coroutines which are functions that can
-be paused and resumed at a later time[^coroutine] and an event loop for asynchronous
-programming.
+We need two components for the task library. Coroutines which are functions that
+can be paused and resumed at a later time[^coroutine] and an event
+loop[^event_loop] for asynchronous programming. However, let us first do a brief
+review of how asynchronous programming has evolved.
 
 ### The evolution of asynchronous programming
 
-Calling an asynchronous function usually returns immediately. A user-supplied
-callback passed to the asynchronous function handles the result of the
-asynchronous function when it completes. This style of programming has led to
-the "callback hell" associated with JavaScript where deeply nested callbacks
-were necessary to chain asynchronous operations.
+Calling an asynchronous function usually returns immediately, firing off the
+asynchronous operation (for example waiting for a network request to complete),
+and user-supplied callback handles the result of the asynchronous operation when
+it completes. This style of programming has led to the "callback hell" where
+deeply nested callbacks were necessary to chain asynchronous operations.
 
 ```javascript
 function asyncFunction1(value, result1 => {
     asyncFunction2(value, result2 => {
-        // More nested calls
+        asyncFunction3(value, result3 => {
+            // More nested calls
+        })
     })
 })
 ```
 
-The solution was the `async` and `await` keywords which made asynchronous
-programming much more readable.
+The solution was the syntactic `async` and `await` keywords which made asynchronous
+programming much more readable. Consider the example from above using
+`async`/`await`.
 
 ```javascript
-async function asyncFunction(value) {
-    const result = await asyncOperation(value)
-    console.log(result)
+async function asyncFunction1(value) {
+    const result1 = await asyncFunction2(value)
+    const result2 = await asyncFunction3(result1)
+
+    // More asynchronous calls
 }
 ```
 
-One critique concerning `async`/`await` is that if you want to `await` something
-the enclosing function, say function A, needs to be `async`. If the enclosing
+One critique of this approach is that if you want to `await` something in an
+enclosed function, say function A, then it needs to be `async`. If the enclosing
 function B of function A also needs to await function A, function B needs to be
-`async` as well. This infectious behaviour means that a lot of code suddenly
-becomes `async`.
+`async` as well. This "infectious" behaviour means that a lot of code suddenly
+becomes `async`[^colorless_functions]. What if we could design a system without
+the need for these viral syntactic elements?
 
 ### The task library
 
@@ -142,7 +159,11 @@ to be passed to `Task.wrap` since neovim only provides callback-style
 asynchronous functions. If you are interested there is a PR for adding
 structured concurrency to neovim.
 
+# Contributing
+
 ## References
 
+[^colorless]: https://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/
 [^coroutine]: https://www.lua.org/pil/9.1.html
+[^event_loop]: https://en.wikipedia.org/wiki/Event_loop
 [^leafo]: https://leafo.net/posts/itchio-and-coroutines.html
