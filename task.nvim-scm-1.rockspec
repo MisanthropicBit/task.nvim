@@ -24,6 +24,8 @@ dependencies = {
 test_dependencies = {
     "busted >= 2.2.0",
     "neotest-busted >= 0.4.0",
+    "neotest >= 5.8.0",
+    "nvim-nio >= 1.10.1",
 }
 
 source = {
@@ -35,5 +37,6 @@ build = {
 }
 
 test = {
-    type = "busted",
+    type = "command",
+    command = "nvim -l ./run-tests.lua",
 }
