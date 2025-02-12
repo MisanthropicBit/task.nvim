@@ -67,13 +67,6 @@ end)
 task:wait_all(tasks, { concurrency = 2, timeout = 3000 })
 ```
 
-## How does it work?
-
-We need two components for the task library. Coroutines which are functions that
-can be paused and resumed at a later time[^coroutine] and an event
-loop[^event_loop] for asynchronous programming. However, let us first do a brief
-review of how asynchronous programming has evolved.
-
 ### The evolution of asynchronous programming
 
 Calling an asynchronous function usually returns immediately, firing off the
@@ -109,8 +102,14 @@ One critique of this approach is that if you want to `await` something in an
 enclosed function, say function A, then it needs to be `async`. If the enclosing
 function B of function A also needs to await function A, function B needs to be
 `async` as well. This "infectious" behaviour means that a lot of code suddenly
-becomes `async`[^colorless_functions]. What if we could design a system without
+becomes `async`[^colorless]. What if we could design a system without
 the need for these viral syntactic elements?
+
+## How does it work?
+
+We need two components for the task library. Coroutines which are functions that
+can be paused and resumed at a later time[^coroutine] and an event
+loop[^event_loop] for asynchronous programming.
 
 ### The task library
 
@@ -119,7 +118,7 @@ coroutine. Since coroutines are a form of cooperative multitasking the coroutine
 would normally start and run to completion unless it explicitly yields to
 another coroutine which then runs. In contrast, multithreading is a form of
 preemptive multitasking where the operating system preempts a thread to allow
-another to run . At some later time, the original coroutine might be resumed and
+another to run. At some later time, the original coroutine might be resumed and
 continue where it left off.
 
 This is where coroutines come in and more specifically `Task.wrap`. This
