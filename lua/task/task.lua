@@ -265,7 +265,7 @@ end
 ---@param func function
 ---@return task.Task
 function Task.new(func)
-    vim.validate({ func = { func, "function" }})
+    vim.validate({ func = { func, "function" } })
 
     return setmetatable({
         _id = get_next_task_id(),
@@ -347,11 +347,12 @@ function Task:start(...)
         local status, nargs, err_or_fn = unpack(results)
 
         if not status then
-            handle_callback(self, callback, nil, formatted_error(
-                "Task failed: %s\n%s",
-                err_or_fn,
-                debug.traceback(thread)
-            ))
+            handle_callback(
+                self,
+                callback,
+                nil,
+                formatted_error("Task failed: %s\n%s", err_or_fn, debug.traceback(thread))
+            )
             return
         end
 
@@ -361,12 +362,17 @@ function Task:start(...)
         end
 
         if type(err_or_fn) ~= "function" then
-            handle_callback(self, callback, nil, formatted_error(
-                "Internal task error: expected function, got %s\n%s\n%s",
-                type(err_or_fn),
-                vim.inspect(results),
-                debug.traceback(thread)
-            ))
+            handle_callback(
+                self,
+                callback,
+                nil,
+                formatted_error(
+                    "Internal task error: expected function, got %s\n%s\n%s",
+                    type(err_or_fn),
+                    vim.inspect(results),
+                    debug.traceback(thread)
+                )
+            )
             return
         end
 
