@@ -5,15 +5,15 @@
 -- (like vim.uv.fs_stat) and overrides its callback to resume the suspended
 -- coroutine, allowing await-style programming.
 --
--- The async.wrap function transforms a callback-style asynchronous function
+-- The Task.wrap function transforms a callback-style asynchronous function
 -- into a function that instead uses coroutines to start and resume when the
 -- original callback is invoked.
 
----@class parcel.task.WaitOptions
+---@class task.WaitOptions
 ---@field concurrency integer? how many tasks can run concurrently at a time
 ---@field timeout integer? timeout in milliseconds
 
----@alias parcel.task.Callback fun(ok: boolean, results_or_error: any)
+---@alias task.Callback fun(ok: boolean, results_or_error: any)
 
 local uv = vim.uv or vim.loop
 
@@ -35,8 +35,8 @@ local function formatted_error(msg, ...)
 end
 
 --- Handle the callback from an async function
----@param task parcel.Task
----@param callback parcel.async.Callback?
+---@param task task.Task
+---@param callback Callback?
 ---@param results any
 ---@param err any
 local function handle_callback(task, callback, results, err)
@@ -66,7 +66,7 @@ local function get_next_task_id()
 end
 
 --- A task is a wrapper around a function that will be run asynchronously (in a coroutine)
----@class parcel.Task
+---@class task.Task
 ---@field private _id integer
 ---@field private _func function
 ---@field private _coroutine thread?
@@ -89,10 +89,10 @@ function Task.is_task(maybe_task)
 end
 
 --- Create and immediately run an asynchronous task
----@param func_or_task function | parcel.Task
----@param callback parcel.task.Callback?
+---@param func_or_task function | task.Task
+---@param callback task.Callback?
 ---@param ... unknown any extra arguments for the initial invocation of the task
----@return parcel.Task
+---@return task.Task
 function Task.run(func_or_task, callback, ...)
     if Task.is_task(func_or_task) then
         func_or_task:check_state()
@@ -104,7 +104,7 @@ function Task.run(func_or_task, callback, ...)
         task = Task.new(func_or_task)
     end
 
-    ---@cast task parcel.Task
+    ---@cast task Task
 
     task:set_callback(callback)
     task:start(...)
@@ -209,15 +209,15 @@ local wait_all = Task.wrap(function(tasks, options, callback)
     end
 end, 3, { async_only = true })
 
----@class WaitAllResult
+---@class task.WaitAllResult
 ---@field ok boolean
 ---@field result any
 
 --- Run tasks waiting for all the finish successfully or not
----@param tasks (function | parcel.Task)[]
----@param options parcel.task.WaitOptions?
+---@param tasks (function | task.Task)[]
+---@param options task.WaitOptions?
 ---@return boolean # whether execution succeeded or not (e.g. false if timed out)
----@return WaitAllResult[] # result of execution
+---@return task.WaitAllResult[] # result of execution
 function Task.wait_all(tasks, options)
     return wait_all(tasks, options)
 end
@@ -247,7 +247,7 @@ local first = Task.wrap(function(tasks, callback)
 end, 2)
 
 --- Run a bunch of tasks and return the result of the first one to complete
----@param tasks parcel.Task[]
+---@param tasks task.Task[]
 ---@return boolean # whether the task succeeded or not
 ---@return any # task result
 function Task.first(tasks)
@@ -263,7 +263,7 @@ end
 
 --- Create a new task
 ---@param func function
----@return parcel.Task
+---@return task.Task
 function Task.new(func)
     vim.validate({ func = { func, "function" }})
 
@@ -301,7 +301,7 @@ end
 
 --- Set the callback to call when the task finishes
 ---@private
----@param callback parcel.task.Callback?
+---@param callback task.Callback?
 function Task:set_callback(callback)
     self._run_callback = callback
 end
@@ -330,7 +330,7 @@ function Task:start(...)
 
     -- This function takes a step in an asynchronous function (coroutine),
     -- running until it hits an asynchronous function call wrapped using
-    -- async.wrap (such as vim.uv.fs_stat) which will yield back to the
+    -- Task.wrap (such as vim.uv.fs_stat) which will yield back to the
     -- below coroutine.resume.
     --
     -- The asynchronous function's callback will be overriden to instead call

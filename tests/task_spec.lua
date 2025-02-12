@@ -1,5 +1,5 @@
 local async = require("neotest-busted.async")
-local Task = require("parcel.tasks.task")
+local Task = require("task.task")
 
 describe("task #task", function()
     it("creates a new task", function()
